@@ -1,0 +1,1607 @@
+//// MVC DOT NET FRAMWORK 
+//////////// API
+ ///MVC API  CONTROLLER
+-----------------------------------------
+ using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Web.Http;
+using WebApplication4.Database;
+using WebApplication4.Models;
+
+namespace WebApplication4.Controllers
+{
+    
+    public class NewEmpDetailsController : ApiController
+    {
+        Na_WebApplicationEntities1 dbcon = new Na_WebApplicationEntities1();
+        [HttpGet]
+        [Route("Api/PGetData")]
+        public List<GetAllData_Result> GetData()
+        {
+           
+          var res= dbcon.GetAllData().ToList();
+            return res;
+            
+        }
+        [HttpPost]
+        [Route("Api/PAddData")]
+        public HttpResponseMessage SaveData(GetAllDataWithId_Result obj)
+        {
+            if (obj.EmpId == 0)
+            {
+                dbcon.SaveData(obj.EmpName, obj.Email, obj.Password, obj.MobileNo,obj.Gender, obj.Dist, obj.Village, obj.ZipCode, obj.DeptName);
+                dbcon.SaveChanges();
+            }
+            else
+            {
+                dbcon.UpdateData(obj.EmpId, obj.EmpName, obj.Email, obj.Password, obj.MobileNo, obj.Gender, obj.Dist, obj.Village, obj.ZipCode, obj.DeptName);
+                dbcon.SaveChanges();
+            }
+            HttpResponseMessage res = new HttpResponseMessage(HttpStatusCode.OK);
+            return res;
+
+        }
+
+        [HttpGet]
+        [Route("Api/PEdit")]
+        public GetAllDataWithId_Result EditGetData(int Id)
+        {
+            var editdata = dbcon.GetAllDataWithId(Id).ToList();
+
+            return editdata[0];
+           
+        }
+        [HttpGet]
+        [Route("Api/PDelete")]
+        public HttpResponseMessage DeleteData(int Id)
+        {
+            dbcon .DeleteData(Id);
+            dbcon.SaveChanges();
+            HttpResponseMessage res = new HttpResponseMessage(HttpStatusCode.OK);
+            return res;
+        }
+        [HttpGet]
+        [Route("Api/Login")]
+        public GetDwLogin_Result Login(string Email,string Password)
+        {
+            var res=dbcon.GetDwLogin(Email, Password).FirstOrDefault(); 
+            return res;
+        }
+
+    }
+     
+}
+//////////////////////
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Web.Http;
+using WebApplication4.Database;
+
+namespace WebApplication4.Controllers
+{
+    public class EmpController : ApiController
+    {
+        Na_WebApplicationEntities1 dbconn = new Na_WebApplicationEntities1();
+        [HttpGet]
+        [Route("ap/na")]
+        public List<string> Show()
+        {
+            List<string> obj = new List<string>()
+            {
+                "Narendra",  "Visal",
+                    "Abhishek",
+                    "Rohan"
+            };
+            return obj;
+        }
+       
+        [HttpGet]
+        [Route("Api/GetData")]
+        public List<Employee> GetData()
+        {
+         
+         var getres = dbconn.Employees.ToList();
+           
+            return getres;
+        }
+        [HttpPost]
+        [Route("Api/AddData")]
+        public HttpResponseMessage SaveData(Employee obj)
+        {
+            if (obj.Id == 0)
+            {
+                dbconn.Employees.Add(obj);
+                dbconn.SaveChanges();
+            }
+            else
+            {
+                dbconn.Entry(obj).State = System.Data.Entity.EntityState.Modified;
+                dbconn.SaveChanges();
+            }
+            HttpResponseMessage res = new HttpResponseMessage(HttpStatusCode.OK);
+            return res;
+
+        }
+
+        [HttpGet]
+        [Route("Api/Edit")]
+        public Employee EditGetData(int Id)
+        {
+            var editres = dbconn.Employees.Where(m => m.Id == Id).First();
+            return editres;
+        }
+        [HttpGet]
+        [Route("Api/Delete")]
+        public HttpResponseMessage DeleteData(int Id)
+        {
+            var deleteres = dbconn.Employees.Where(m => m.Id == Id).First();
+            dbconn.Employees.Remove(deleteres);
+            dbconn.SaveChanges();
+            HttpResponseMessage res = new HttpResponseMessage(HttpStatusCode.OK);
+            return res;
+        }
+      
+        [HttpPost]
+        [Route("Api/GetDate")]
+        public HttpResponseMessage DateTime(string dateval)
+        {
+           // DateTime dt = new DateTime();
+            var datevalue = dateval;
+            HttpResponseMessage res = new HttpResponseMessage(HttpStatusCode.OK);
+            return res;
+            
+        }
+    }   
+}
+ 
+/////////////////////////////////////////////
+/// API MODEL
+////////////////////////
+ using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+
+namespace WebApplication4.Models
+{
+    public class ProcedureModel
+    {
+        public int EmpId { get; set; }
+        public string EmpName { get; set; }
+        public string Email { get; set; }
+        public string Password { get; set; }
+        public string MobileNo { get; set; }
+        public string Gender { get; set; }
+        public string Dist { get; set; }
+        public string Village { get; set; }
+        public string ZipCode { get; set; }
+        public string DeptName { get; set; }
+        public string DeptCode { get; set; }
+    }
+}
+///////////////////////////////
+//DB CONTEXT
+------------------
+//------------------------------------------------------------------------------
+// <auto-generated>
+//     This code was generated from a template.
+//
+//     Manual changes to this file may cause unexpected behavior in your application.
+//     Manual changes to this file will be overwritten if the code is regenerated.
+// </auto-generated>
+//------------------------------------------------------------------------------
+
+namespace WebApplication4.Database
+{
+    using System;
+    using System.Data.Entity;
+    using System.Data.Entity.Infrastructure;
+    using System.Data.Entity.Core.Objects;
+    using System.Linq;
+    
+    public partial class Na_WebApplicationEntities1 : DbContext
+    {
+        public Na_WebApplicationEntities1()
+            : base("name=Na_WebApplicationEntities1")
+        {
+        }
+    
+        protected override void OnModelCreating(DbModelBuilder modelBuilder)
+        {
+            throw new UnintentionalCodeFirstException();
+        }
+    
+        public virtual DbSet<Emp> Emps { get; set; }
+        public virtual DbSet<EmpAddress> EmpAddresses { get; set; }
+        public virtual DbSet<EmpLogin> EmpLogins { get; set; }
+        public virtual DbSet<Employee> Employees { get; set; }
+        public virtual DbSet<Empp> Empps { get; set; }
+        public virtual DbSet<MaDepartment> MaDepartments { get; set; }
+        public virtual DbSet<NewEmp> NewEmps { get; set; }
+        public virtual DbSet<User_Info> User_Info { get; set; }
+    
+        public virtual int DeleteData(Nullable<int> id)
+        {
+            var idParameter = id.HasValue ?
+                new ObjectParameter("Id", id) :
+                new ObjectParameter("Id", typeof(int));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction("DeleteData", idParameter);
+        }
+    
+        public virtual ObjectResult<GetAllData_Result> GetAllData()
+        {
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<GetAllData_Result>("GetAllData");
+        }
+    
+        public virtual ObjectResult<GetAllDataWithId_Result> GetAllDataWithId(Nullable<int> id)
+        {
+            var idParameter = id.HasValue ?
+                new ObjectParameter("Id", id) :
+                new ObjectParameter("Id", typeof(int));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<GetAllDataWithId_Result>("GetAllDataWithId", idParameter);
+        }
+    
+        public virtual int SaveData(string name, string email, string password, string mobileNo, string gender, string dist, string village, string zipCode, string deptName)
+        {
+            var nameParameter = name != null ?
+                new ObjectParameter("Name", name) :
+                new ObjectParameter("Name", typeof(string));
+    
+            var emailParameter = email != null ?
+                new ObjectParameter("Email", email) :
+                new ObjectParameter("Email", typeof(string));
+    
+            var passwordParameter = password != null ?
+                new ObjectParameter("Password", password) :
+                new ObjectParameter("Password", typeof(string));
+    
+            var mobileNoParameter = mobileNo != null ?
+                new ObjectParameter("MobileNo", mobileNo) :
+                new ObjectParameter("MobileNo", typeof(string));
+    
+            var genderParameter = gender != null ?
+                new ObjectParameter("Gender", gender) :
+                new ObjectParameter("Gender", typeof(string));
+    
+            var distParameter = dist != null ?
+                new ObjectParameter("Dist", dist) :
+                new ObjectParameter("Dist", typeof(string));
+    
+            var villageParameter = village != null ?
+                new ObjectParameter("Village", village) :
+                new ObjectParameter("Village", typeof(string));
+    
+            var zipCodeParameter = zipCode != null ?
+                new ObjectParameter("ZipCode", zipCode) :
+                new ObjectParameter("ZipCode", typeof(string));
+    
+            var deptNameParameter = deptName != null ?
+                new ObjectParameter("DeptName", deptName) :
+                new ObjectParameter("DeptName", typeof(string));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction("SaveData", nameParameter, emailParameter, passwordParameter, mobileNoParameter, genderParameter, distParameter, villageParameter, zipCodeParameter, deptNameParameter);
+        }
+    
+        public virtual int UpdateData(Nullable<int> id, string name, string email, string password, string mobileNo, string gender, string dist, string village, string zipCode, string deptName)
+        {
+            var idParameter = id.HasValue ?
+                new ObjectParameter("Id", id) :
+                new ObjectParameter("Id", typeof(int));
+    
+            var nameParameter = name != null ?
+                new ObjectParameter("Name", name) :
+                new ObjectParameter("Name", typeof(string));
+    
+            var emailParameter = email != null ?
+                new ObjectParameter("Email", email) :
+                new ObjectParameter("Email", typeof(string));
+    
+            var passwordParameter = password != null ?
+                new ObjectParameter("Password", password) :
+                new ObjectParameter("Password", typeof(string));
+    
+            var mobileNoParameter = mobileNo != null ?
+                new ObjectParameter("MobileNo", mobileNo) :
+                new ObjectParameter("MobileNo", typeof(string));
+    
+            var genderParameter = gender != null ?
+                new ObjectParameter("Gender", gender) :
+                new ObjectParameter("Gender", typeof(string));
+    
+            var distParameter = dist != null ?
+                new ObjectParameter("Dist", dist) :
+                new ObjectParameter("Dist", typeof(string));
+    
+            var villageParameter = village != null ?
+                new ObjectParameter("Village", village) :
+                new ObjectParameter("Village", typeof(string));
+    
+            var zipCodeParameter = zipCode != null ?
+                new ObjectParameter("ZipCode", zipCode) :
+                new ObjectParameter("ZipCode", typeof(string));
+    
+            var deptNameParameter = deptName != null ?
+                new ObjectParameter("DeptName", deptName) :
+                new ObjectParameter("DeptName", typeof(string));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction("UpdateData", idParameter, nameParameter, emailParameter, passwordParameter, mobileNoParameter, genderParameter, distParameter, villageParameter, zipCodeParameter, deptNameParameter);
+        }
+    
+        public virtual ObjectResult<GetDwLogin_Result> GetDwLogin(string email, string pass)
+        {
+            var emailParameter = email != null ?
+                new ObjectParameter("Email", email) :
+                new ObjectParameter("Email", typeof(string));
+    
+            var passParameter = pass != null ?
+                new ObjectParameter("pass", pass) :
+                new ObjectParameter("pass", typeof(string));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<GetDwLogin_Result>("GetDwLogin", emailParameter, passParameter);
+        }
+    }
+}
+
+
+///////////////////////////////////////////////
+ // MVC FRAMEWORK CONTROLLER
+///////////////////////////////////
+ EMPLOYEE MANAGEMENT CONTROLLER
+------------------------------------------------
+using ErrorApp.DB_con;
+using ErrorApp.Models;
+using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net.Http;
+using System.Web;
+using System.Web.Mvc;
+using System.Web.Security;
+
+namespace ErrorApp.Controllers
+{
+     [Authorize]
+    public class EmpManagController : Controller
+    {
+        public object ToDate { get; private set; }
+        public object FromDate { get; private set; }
+
+        // GET: EmpManag 
+        public ActionResult Na()
+        {
+           // Na_WebApplicationEntities dbConn = new Na_WebApplicationEntities();
+            //var empres = dbConn.Employees.ToList();
+
+           //to fatch data from Api
+           //1st step
+                HttpClient clint = new HttpClient();
+            var data = clint.GetAsync("http://localhost:53526/Api/GetData").Result;
+
+            //2nd step for read data
+            var readData = data.Content.ReadAsStringAsync().Result;
+
+            //3rd step convert json to CLASS OBJECT (razor syntax for view)
+
+            var empres = JsonConvert.DeserializeObject<List<EmpDataModel>>(readData);
+
+            //NOT REQUIRED FOR SHOW DATA WITH MODEL
+
+            //List<EmpDataModel> obj1 = new List<EmpDataModel>(); 
+            //foreach(var item in readData)
+            //{
+            //    obj1.Add(new EmpDataModel 
+            //    {
+            //        Id=item.Id,
+            //        Name=item.Name,
+            //        Department=item.Department,
+            //        DOB=item.DOB,
+            //        Address=item.Address,
+            //        ZipCode=item.ZipCode,
+            //        Salary=item.Salary,
+            //        PhoneNo=item.PhoneNo
+
+            //    });
+            //}
+
+            return View(empres);
+        }
+        //Action for Login In Project
+        [HttpGet]
+        [AllowAnonymous]
+        public ActionResult Login()
+        {
+            return View();
+        }
+        [HttpPost]
+        [AllowAnonymous]
+        public ActionResult Login(LoginModel obj)
+        {
+            Na_WebApplicationEntities dbConn = new Na_WebApplicationEntities();
+            var reslogin = dbConn.User_Info.Where(m => m.Email == obj.Email).FirstOrDefault();
+
+            if (reslogin == null)
+            {
+                TempData["InvalidEmail"] = "You enter an Invalid Email...";
+            }
+            else
+            {
+                if (reslogin.Email == obj.Email && reslogin.Password == obj.Password)
+                {
+                    FormsAuthentication.SetAuthCookie(reslogin.Email, false);
+
+                    Session["Email"] = reslogin.Email;
+                   
+                    return RedirectToAction("Na");
+                }
+                else
+                {
+                    TempData["InvalidPass"] = "Worng password Entered...";
+                }
+
+            }
+
+            return View();
+        }
+        public ActionResult LogOut()
+        {
+            FormsAuthentication.SignOut();
+            Session.Clear();
+            //return RedirectToAction("Index");
+            return RedirectToAction("Login");
+        }
+        [HttpGet]
+        [AllowAnonymous]
+        public ActionResult AddEmp()
+        {
+            return View();
+        }
+        [HttpPost]
+        [AllowAnonymous]
+        [ValidateAntiForgeryToken()]
+        public ActionResult AddEmp(EmpDataModel obj)
+        {
+            //1st step take data and convert into serialize form
+            HttpClient clint = new HttpClient(); 
+            var adddata = JsonConvert.SerializeObject(obj);
+
+            //step 2- Send data json f, UTF-8,which type of data
+
+            StringContent postData = new StringContent(adddata, System.Text.Encoding.UTF8, "application/json");
+            //Post data to api
+            var result = clint.PostAsync("http://localhost:53526/Api/AddData",postData).Result;
+
+            /*
+             Na_WebApplicationEntities dbConn = new Na_WebApplicationEntities(); 
+            Employee empobj = new Employee();
+            empobj.Id = obj.Id;
+            empobj.Name = obj.Name;
+            empobj.Department = obj.Department;
+            empobj.DOB = obj.DOB;
+            empobj.Address = obj.Address;
+            empobj.ZipCode = obj.ZipCode;
+            empobj.Salary = obj.Salary;
+            empobj.PhoneNo = obj.PhoneNo;
+            if (obj.Id == 0)
+            {
+                dbConn.Employees.Add(empobj);
+                dbConn.SaveChanges();
+            }
+            else
+            {
+                dbConn.Entry(empobj).State = System.Data.Entity.EntityState.Modified;
+                dbConn.SaveChanges();
+            }
+            // return View(empobj);
+            */
+            return RedirectToAction("Na");
+
+        }
+         
+        public ActionResult Delete(int Id)
+        {
+            HttpClient clint = new HttpClient();
+            var editdata = clint.GetAsync("http://localhost:53526/Api/Delete" + "?Id=" + Id).Result;
+
+            /*
+            Na_WebApplicationEntities dbConn = new Na_WebApplicationEntities();
+            var deleteItem = dbConn.Employees.Where(m => m.Id == Id).First();
+            dbConn.Employees.Remove(deleteItem);
+
+            dbConn.SaveChanges();
+            */
+            return RedirectToAction("Na");
+        }
+         
+        public ActionResult Edit(int Id)
+        { 
+            HttpClient clint = new HttpClient();
+            var editdata = clint.GetAsync("http://localhost:53526/Api/Edit"+"?Id="+Id).Result;
+
+            var readData = editdata.Content.ReadAsStringAsync().Result;
+
+            //3rd step convert json to CLASS OBJECT (razor syntax for view)
+
+            var empres = JsonConvert.DeserializeObject<EmpDataModel>(readData);
+
+            return View("AddEmp", empres);
+            /*
+            Na_WebApplicationEntities dbConn = new Na_WebApplicationEntities();
+            var editRes = dbConn.Employees.Where(m => m.Id == Id).First();
+            EmpDataModel editItem = new EmpDataModel();
+            editItem.Id = editRes.Id;
+            editItem.Name = editRes.Name;
+            editItem.Department = editRes.Department;
+            editItem.DOB = editRes.DOB;
+            editItem.Address = editRes.Address;
+            editItem.ZipCode = editRes.ZipCode;
+            editItem.Salary = editRes.Salary;
+            editItem.PhoneNo = editRes.PhoneNo;
+              return View("AddEmp",editItem);
+            */
+        }
+        [HttpGet]
+        public ActionResult DataView()
+        {
+            return View();
+        }
+        [HttpPost]
+        public ActionResult DataView(Table_Model obj)
+        {
+            HttpClient client = new HttpClient();
+            var date = obj.Date;
+            var adddata = JsonConvert.SerializeObject(date);
+            StringContent postData = new StringContent(adddata, System.Text.Encoding.UTF8, "application/json");
+         //  var postTask = client.GetAsync("/api/Values/Applications?fromDate=" + FromDate.ToString("O") + "&toDate=" + ToDate.ToString("O"));
+            var result = client.PostAsync("http://localhost:53526/Api/GetDate?dateval="+date.ToString(), postData).Result;
+        
+
+            //client.BaseAddress = new Uri("https://localhost:44329/api/Values");
+            //var postTask = client.GetAsync("/api/Values/Applications?fromDate=" + FromDate + "&toDate=" + ToDate);
+            return View();
+        }
+    }
+}
+/////////////////////////////
+// HOME CONTROLLER
+---------------
+using ErrorApp.DB_con;
+using ErrorApp.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.Mvc;
+
+namespace ErrorApp.Controllers
+{
+    [RoutePrefix("Na")]
+    public class HomeController : Controller
+    {
+        [Route("YourApp")]
+        public ActionResult Index()
+        {
+            return View();
+        }
+        [Authorize]
+        [OutputCache(Duration =30)]
+        public ActionResult About()
+        {
+            Na_WebApplicationEntities dbconn = new Na_WebApplicationEntities();
+            var result = dbconn.Empps.ToList();
+            List<Table_Model> obj = new List<Table_Model>();
+            foreach (var item in result)
+            {
+                obj.Add(new Table_Model
+                {
+                    Id = item.Id,
+                    Name = item.Name,
+                    Email = item.Email
+                });
+            }
+
+            return View(obj);
+        }
+        [HttpGet]
+        [Authorize]
+        public ActionResult LoginForm()
+        {
+            return View();
+        }
+        [HttpPost]
+        [Authorize]
+        public ActionResult LoginForm(Table_Model obj)
+        {
+            Na_WebApplicationEntities dbconn = new Na_WebApplicationEntities();
+            Empp objl = new Empp();
+            objl.Id = obj.Id;
+            objl.Name = obj.Name;
+            objl.Email = obj.Email;
+
+            if (obj.Id == 0)
+            { 
+                dbconn.Empps.Add(objl);
+                dbconn.SaveChanges();
+            }
+            else
+            {
+                dbconn.Entry(objl).State = System.Data.Entity.EntityState.Modified;
+                dbconn.SaveChanges();
+            }
+           
+            //return View();
+            return RedirectToAction("About");
+            
+        }
+        public ActionResult Contact()
+        {
+            ViewBag.Message = "Your contact page.";
+
+            return View();
+        }
+        
+        public ActionResult Delete(int Id)
+        {
+            Na_WebApplicationEntities dbconn = new Na_WebApplicationEntities();
+            var resdelete = dbconn.Empps.Where(m => m.Id == Id).First();
+            dbconn.Empps.Remove(resdelete);
+            dbconn.SaveChanges();
+            return RedirectToAction("About");
+            //return View();
+        }
+       
+        public ActionResult Edit(int Id)
+        {
+            Na_WebApplicationEntities dbconn = new Na_WebApplicationEntities();
+            var editResult = dbconn.Empps.Where(m => m.Id == Id).First();
+
+            Table_Model objmo = new Table_Model();
+            objmo.Id = editResult.Id;
+            objmo.Name = editResult.Name;
+            objmo.Email = editResult.Email;
+
+            return View("LoginForm", objmo);
+           // return View();
+        }
+
+        public ActionResult ViewDetails()
+        {
+            ViewBag.name = "Narendra Cahauhan";
+            ViewBag.data = 87757768;
+            ViewBag.data1 = 877.89f;
+            ViewBag.data2 = 877.089;
+            ViewBag.data3 = true;
+            ViewBag.data4 = DateTime.Now;
+
+            List<string> objv = new List<string>()
+            {
+                "Abhishek",
+                "narendra",
+                "visal",
+                "raj kumar"
+            }; 
+            ViewBag.data5 = "";
+
+            ViewData["testing"] = "this is Demo for View Data.";
+            ViewData["test"] = 3585856+"jfbgh";
+            ViewData["test2"] = DateTime.Now;
+            List<string> test4 = new List<string>()
+            {
+                "Narendrachauhan",
+                "raj kumar",
+                "Gaurav",
+                "Sumit"
+            };
+            ViewData["stringVal"] = test4 ;
+
+            TempData["temp1"] = "This is temp Data for view";
+            TempData["temp2"]=DateTime.Now;
+            TempData["temp3"]=8677868678+"number";
+            TempData["temp4"]=false;
+            return View("ViewDetails");
+        }
+    }
+}
+
+////////////////////////////////////////////////
+ /// LAYOUT.CSHTML
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NarendraApplication</title>
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+</head>
+
+<body style="background-color:#d2e1f8">
+    <div class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                @Html.ActionLink("Application name", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
+            </div>
+            @Html.Partial("_NavBarTop")
+        </div>
+    </div>
+    <div class="container body-content">
+        @RenderBody()
+        <hr />
+        <footer>
+            <p>&copy; @DateTime.Now.Year - My ASP.NET Application</p>
+        </footer>
+    </div>
+
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+    @Scripts.Render("~/bundles/jqueryval")
+    @RenderSection("scripts", required: false)
+</body>
+</html>
+///////////////////////////////// PARTIAL VIEW
+<style>
+    .log {
+        position: absolute;
+        right: 5px;
+        top: 8px;
+    }
+</style>
+
+<div class="navbar-collapse collapse">
+    <ul class="nav navbar-nav">
+        <li>@Html.ActionLink("Home", "Index", "Home")</li>
+        <li>@Html.ActionLink("Data", "About", "Home")</li>
+        <li>@Html.ActionLink("ContactUs", "Contact", "Home")</li>
+        <li>@Html.ActionLink("Demo", "LoginForm", "Home")</li>
+        <li>@Html.ActionLink("Details", "Na", "EmpManag")</li>
+        <li>@Html.ActionLink("UserLogin", "Login", "EmpManag")</li>
+        <li>@Html.ActionLink("Reg.Form", "AddEmp", "EmpManag")</li>
+        <li>@Html.ActionLink("Views", "ViewDetails", "Home")</li>
+        <li>@Html.ActionLink("DataView", "DataView", "EmpManag")</li>
+        @if (Session["Email"] != null)
+        {
+            <div class="log">
+            <li class="btn btn-default" style="color:#fb3333">@Html.ActionLink("LogOut", "LogOut", "EmpManag")</li>
+            <li style="color:red">@Session["Email"]</li>
+             
+            <br />
+            <li style="color:#0b27d1">@DateTime.Now</li>
+</div>
+         }
+    </ul>
+ </div>
+ 
+
+////----------------------------
+//ALL MODEL
+///////////////////////////////////////
+ namespace ErrorApp.Models
+{
+    public class EmpDataModel
+    {
+        public int Id { get; set; }
+        [Required]
+        public string Name { get; set; }
+        [Required]
+        public string Department { get; set; }
+        [Required]
+        public string DOB { get; set; }
+        [Required]
+        public string Address { get; set; }
+        [Required]
+        public string ZipCode { get; set; }
+        [Required]
+        public int? Salary { get; set; }
+        [Required]
+        public string PhoneNo { get; set; }
+    }
+}
+/////////////
+    public class LoginModel
+    {
+        public int Id { get; set; }
+        [Required(ErrorMessage ="please enter your user Email Id for Login..")]
+        [EmailAddress]
+        public string Email { get; set; }
+        [Required(ErrorMessage ="Enter your password Here..")]
+        public string Password { get; set; }
+    }
+////
+    public class Table_Model
+    {
+        public int Id { get; set; }
+        [Required]
+        public string Name { get; set; }
+        [Required]
+        public string Email { get; set; }
+        public  DateTime Date { get; set; }
+       
+    }
+//////////////////////////////////////////
+// WEB CONFIG FOR DEFAULT PATH SETTING
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  For more information on how to configure your ASP.NET application, please visit
+  https://go.microsoft.com/fwlink/?LinkId=301880
+  -->
+<configuration>
+  <configSections>
+    <!-- For more information on Entity Framework configuration, visit http://go.microsoft.com/fwlink/?LinkID=237468 -->
+    <section name="entityFramework" type="System.Data.Entity.Internal.ConfigFile.EntityFrameworkSection, EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" requirePermission="false" />
+  </configSections>
+  <appSettings>
+    <add key="webpages:Version" value="3.0.0.0" />
+    <add key="webpages:Enabled" value="false" />
+    <add key="ClientValidationEnabled" value="true" />
+    <add key="UnobtrusiveJavaScriptEnabled" value="true" />
+  </appSettings>
+  <system.web>
+	  <authentication mode="Forms">
+		  <forms loginUrl="~/EmpManag/Login"></forms>
+	  </authentication>
+    <compilation debug="true" targetFramework="4.7.2" />
+    <httpRuntime targetFramework="4.7.2" />
+  </system.web>
+  <runtime>
+    <assemblyBinding xmlns="urn:schemas-microsoft-com:asm.v1">
+      <dependentAssembly>
+        <assemblyIdentity name="Antlr3.Runtime" publicKeyToken="eb42632606e9261f" />
+        <bindingRedirect oldVersion="0.0.0.0-3.5.0.2" newVersion="3.5.0.2" />
+      </dependentAssembly>
+      <dependentAssembly>
+        <assemblyIdentity name="Newtonsoft.Json" publicKeyToken="30ad4fe6b2a6aeed" />
+        <bindingRedirect oldVersion="0.0.0.0-12.0.0.0" newVersion="12.0.0.0" />
+      </dependentAssembly>
+      <dependentAssembly>
+        <assemblyIdentity name="System.Web.Optimization" publicKeyToken="31bf3856ad364e35" />
+        <bindingRedirect oldVersion="1.0.0.0-1.1.0.0" newVersion="1.1.0.0" />
+      </dependentAssembly>
+      <dependentAssembly>
+        <assemblyIdentity name="WebGrease" publicKeyToken="31bf3856ad364e35" />
+        <bindingRedirect oldVersion="0.0.0.0-1.6.5135.21930" newVersion="1.6.5135.21930" />
+      </dependentAssembly>
+      <dependentAssembly>
+        <assemblyIdentity name="System.Web.Helpers" publicKeyToken="31bf3856ad364e35" />
+        <bindingRedirect oldVersion="1.0.0.0-3.0.0.0" newVersion="3.0.0.0" />
+      </dependentAssembly>
+      <dependentAssembly>
+        <assemblyIdentity name="System.Web.WebPages" publicKeyToken="31bf3856ad364e35" />
+        <bindingRedirect oldVersion="1.0.0.0-3.0.0.0" newVersion="3.0.0.0" />
+      </dependentAssembly>
+      <dependentAssembly>
+        <assemblyIdentity name="System.Web.Mvc" publicKeyToken="31bf3856ad364e35" />
+        <bindingRedirect oldVersion="1.0.0.0-5.2.7.0" newVersion="5.2.7.0" />
+      </dependentAssembly>
+    </assemblyBinding>
+  </runtime>
+  <system.codedom>
+    <compilers>
+      <compiler language="c#;cs;csharp" extension=".cs" type="Microsoft.CodeDom.Providers.DotNetCompilerPlatform.CSharpCodeProvider, Microsoft.CodeDom.Providers.DotNetCompilerPlatform, Version=2.0.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35" warningLevel="4" compilerOptions="/langversion:default /nowarn:1659;1699;1701" />
+      <compiler language="vb;vbs;visualbasic;vbscript" extension=".vb" type="Microsoft.CodeDom.Providers.DotNetCompilerPlatform.VBCodeProvider, Microsoft.CodeDom.Providers.DotNetCompilerPlatform, Version=2.0.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35" warningLevel="4" compilerOptions="/langversion:default /nowarn:41008 /define:_MYTYPE=\&quot;Web\&quot; /optionInfer+" />
+    </compilers>
+  </system.codedom>
+  <entityFramework>
+    <providers>
+      <provider invariantName="System.Data.SqlClient" type="System.Data.Entity.SqlServer.SqlProviderServices, EntityFramework.SqlServer" />
+    </providers>
+  </entityFramework>
+  <connectionStrings>
+    <add name="Na_WebApplicationEntities" connectionString="metadata=res://*/DB_con.Model1.csdl|res://*/DB_con.Model1.ssdl|res://*/DB_con.Model1.msl;provider=System.Data.SqlClient;provider connection string=&quot;data source=CHETUIWK639\SQLSERVER2019;initial catalog=Na_WebApplication;integrated security=True;MultipleActiveResultSets=True;App=EntityFramework&quot;" providerName="System.Data.EntityClient" />
+  </connectionStrings>
+</configuration>
+
+/////////////////////////////////////////
+// ALL VIEWS IN MVC FRAMEWORK //////////////////////
+ @model ErrorApp.Models.EmpDataModel
+@{
+    ViewBag.Title = "AddEmp";
+}
+
+<style>
+    .error {
+        color: red;
+    }
+
+    input[type="text"] {
+        color:black;
+    }
+    .split {
+        height: 100%;
+        width: 50%;
+        position: absolute; 
+      display:inherit;
+    }
+    .left {
+        left: 0px;
+        background-color:#abeae6;
+    }
+    .right {
+        right: 0;
+        background-color:#c4eadd;
+    }
+    
+    .top{
+        margin:10px;
+        border:initial;
+        display:normal;
+        background-color:aquamarine;
+    }
+    .img {
+        position:absolute;
+        width: 450px;
+        height: 460px;
+        padding: 90px;
+        margin: 200px;
+    }
+
+    .form {
+        font: 100%;
+        padding:20px;
+    }
+    .p{
+        position:center;
+        margin: 10%;
+        padding:20%;
+    }
+    .star{
+        color:red;
+    }
+     .pr{
+        padding-bottom:3em;
+        text-align:center;
+         
+    }
+</style>
+<body style="background-color:#559fee">
+
+    @using (Html.BeginForm("AddEmp", "EmpManag", FormMethod.Post))
+    {
+        @Html.HiddenFor(m => m.Id)
+        @Html.AntiForgeryToken();
+
+        <canter>
+            <div class="form">
+                <div>
+                    <marquee><h2 style="color:blue;">For registration please Fill the below form...</h2></marquee>
+                </div>
+                <div class="split left">
+                    <div class="p">
+                        <div class="col-12">
+                            <label class="star">*</label><label> Enter your full Name</label>
+                            @Html.TextBoxFor(m => m.Name, new { @class = "form-control" })
+                            @Html.ValidationMessageFor(m => m.Name, "", new { @class = "error" })
+                        </div>
+                        <div class="col-6">
+                            <label class="star">*</label><label>Enter your Department</label>
+                            @Html.TextBoxFor(m => m.Department, new { @class = "form-control" })
+                            @Html.ValidationMessageFor(m => m.Department, "", new { @class = "error" })
+                        </div>
+                        <div class="col-6">
+                            <label class="star">*</label><label>Enter your Dob</label>
+                            @Html.TextBoxFor(m => m.DOB, new { @class = "form-control" })
+                            @Html.ValidationMessageFor(m => m.DOB, "", new { @class = "error" })
+                        </div>
+                        <div class="col-12">
+                            <label class="star">*</label><label>Enter your full Address</label>
+                            @Html.TextAreaFor(m => m.Address, new { @class = "form-control" })
+                            @Html.ValidationMessageFor(m => m.Address, "", new { @class = "error" })
+                        </div>
+                        <div class="form-group">
+                            <label class="star">*</label><label>Enter your ZipCode</label>
+                            @Html.TextBoxFor(m => m.ZipCode, new { @class = "form-control" })
+                            @Html.ValidationMessageFor(m => m.ZipCode, "", new { @class = "error" })
+                        </div>
+                        <div class="form-group">
+                            <label class="star">*</label><label>Enter your Salary</label>
+                            @Html.TextBoxFor(m => m.Salary, new { @class = "form-control input" })
+                            @Html.ValidationMessageFor(m => m.Salary, "", new { @class = "error" })
+                        </div>
+                        <div class="form-group">
+                            <label class="star">*</label><label>Enter your PhoneNo</label>
+                            @Html.TextBoxFor(m => m.PhoneNo, new { @class = "form-control" })
+                            @Html.ValidationMessageFor(m => m.PhoneNo, "", new { @class = "error" })
+                        </div>
+
+                        <button class="btn-primary " type="submit">Submit</button>
+                        <button class="btn-group-sm " type="reset">Reset</button>
+                    </div>
+                </div>
+                <div class="split right">
+
+                    <img src="~/Image/rrrrr.jpg" class="img   " alt="..." />
+                    <p class="text-center">Upload your resent image. Image size should be (50kb - 150kb)....</p>
+
+                </div>
+            </div>
+        </canter>
+    }
+</body>
+/////////////////////////////
+@model List<ErrorApp.Models.EmpDataModel>
+@{
+    ViewBag.Title = "Na";
+}
+
+<h2>Na View</h2>
+<table  class="table table-bordered "  >
+     
+        <tr style="background-color:#1079a1">
+            <th>Id</th>
+            <th>Name</th>
+            <th>Department</th>
+            <th>Dob</th>
+            <th>Address</th>
+            <th>ZipCode</th>
+            <th>Salary</th>
+            <th>PhoneNo</th>
+            <th>Edit</th>
+            <th>Delete</th>
+        </tr>
+    
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>@item.Id</td>
+            <td>@item.Name</td>
+            <td>@item.Department</td>
+            <td>@item.DOB</td>
+            <td>@item.Address</td>
+            <td>@item.ZipCode</td>
+            <td>@item.Salary</td>
+            <td>@item.PhoneNo</td>
+            <td><a class="btn btn-primary" href="@Url.Action("Edit","EmpManag",new {item.Id })">Edit</a></td>
+            <td><a class="btn btn-danger" href="@Url.Action("Delete","EmpManag",new {item.Id })">Delete</a></td>
+        </tr>
+    }
+</table>
+<br />
+
+<h2>your form is working</h2>
+<h2><b>===============Temp Data============ </b></h2>
+<br />
+<h2>@TempData["temp2"]</h2>
+
+//////////////////////////////////////
+@model ErrorApp.Models.LoginModel
+@{
+    ViewBag.Title = "Login";
+     
+}
+
+<style>
+    .login {
+        position: center;
+        padding: 50px;
+        margin: 50px;
+        width: 50%;
+        border-style: solid;
+        border-block-color: #00ff21;
+    }
+    .text{
+        text-align:center;
+        color:#000000;
+         
+    }
+    .error {
+        color: red;
+    }
+</style>
+<marquee><h2 style="color:blue">If you are Alrady registered then Login Here</h2></marquee>
+<center>
+    <div class="login">
+        @using (Html.BeginForm("Login", "EmpManag", FormMethod.Post))
+        {
+
+            <h2>Enter your user Id and Password </h2><br />
+            <div>
+                <label>Email</label><label style="color:red">*</label>
+                @Html.TextBoxFor(m => m.Email, new { @class = "form-control" })
+                @Html.ValidationMessageFor(m => m.Email, "", new { @class = "error" })
+                <p class="error">@TempData["InvalidEmail"]</p>
+            </div>
+
+            <div style="padding:10px" class="form-group">
+                <label>Password</label><label style="color:red">*</label>
+                @Html.PasswordFor(m => m.Password, new { @class = "form-control" })
+                @Html.ValidationMessageFor(m => m.Password, "", new { @class = "error" })
+                <p class="error">@TempData["InvalidPass"]</p>
+
+            </div>
+            <label>
+                <button class="btn btn-primary" type="submit">Login</button>
+                <a href="DataView"> Forget Password  </a>
+            </label> 
+        }
+    </div>
+</center>
+        <div class="text">
+            <h2>If you are not registered then Register<a href="AddEmp">Here</a>  </h2>
+        </div>
+//////////////////////////////////////
+
+@{
+    ViewBag.Title = "ViewDetails";
+}
+
+<h2>ViewDetails --"{ViewBag,ViewData,TempData,Session}"...</h2>
+
+
+<h1>
+    @ViewBag.name
+    <br />
+    @ViewBag.data <br />
+    @ViewBag.data1<br />
+    @ViewBag.data2<br />
+    @ViewBag.data3<br />
+    @ViewBag.data4
+</h1>
+
+@foreach (var item in ViewBag.data5)
+{
+    <ul>
+        <li>@item</li>
+    </ul>
+}
+<hr />
+<h2><b>=========== ====view Data============ </b></h2>
+<h1>
+ 
+    @ViewData["testing"]<br />
+    @ViewData["test"]<br />
+    @ViewData["test2"]<br />
+</h1>
+<h3>complex type data in this so we use type casting</h3>
+@foreach (var item in (List<string>)ViewData["stringVal"])
+{
+    <ul>
+        <li>@item</li>
+    </ul>
+}
+<h2><b>===============Temp Data============ </b></h2>
+ 
+//////////////////////////////////////////////
+
+@{
+    ViewBag.Title = "Contact";
+}
+<h2>@ViewBag.Title.</h2>
+<h3>@ViewBag.Message</h3>
+
+<address>
+    One Microsoft Way<br />
+    Redmond, WA 98052-6399<br />
+    <abbr title="Phone">P:</abbr>
+    425.555.0100
+</address>
+
+<address>
+    <strong>Support:</strong>   <a href="mailto:Support@example.com">Support@example.com</a><br />
+    <strong>Marketing:</strong> <a href="mailto:Marketing@example.com">Marketing@example.com</a>
+</address>
+<h2>@TempData["temp1"]</h2>
+<h2>@TempData["temp2"]</h2>
+<h2>@TempData["temp3"]</h2>
+<h2>@TempData["temp4"]</h2>
+
+//////////////////////////
+  DATABASE CODE
+////////////////////////////////  
+ USE [master]
+GO
+/****** Object:  Database [Na_WebApplication]    Script Date: 3/7/2023 12:13:02 PM ******/
+CREATE DATABASE [Na_WebApplication]
+ CONTAINMENT = NONE
+ ON  PRIMARY 
+( NAME = N'Na_WebApplication', FILENAME = N'C:\Program Files\Microsoft SQL Server\MSSQL15.SQLSERVER2019\MSSQL\DATA\Na_WebApplication.mdf' , SIZE = 8192KB , MAXSIZE = UNLIMITED, FILEGROWTH = 65536KB )
+ LOG ON 
+( NAME = N'Na_WebApplication_log', FILENAME = N'C:\Program Files\Microsoft SQL Server\MSSQL15.SQLSERVER2019\MSSQL\DATA\Na_WebApplication_log.ldf' , SIZE = 8192KB , MAXSIZE = 2048GB , FILEGROWTH = 65536KB )
+ WITH CATALOG_COLLATION = DATABASE_DEFAULT
+GO
+ALTER DATABASE [Na_WebApplication] SET COMPATIBILITY_LEVEL = 150
+GO
+IF (1 = FULLTEXTSERVICEPROPERTY('IsFullTextInstalled'))
+begin
+EXEC [Na_WebApplication].[dbo].[sp_fulltext_database] @action = 'enable'
+end
+GO
+ALTER DATABASE [Na_WebApplication] SET ANSI_NULL_DEFAULT OFF 
+GO
+ALTER DATABASE [Na_WebApplication] SET ANSI_NULLS OFF 
+GO
+ALTER DATABASE [Na_WebApplication] SET ANSI_PADDING OFF 
+GO
+ALTER DATABASE [Na_WebApplication] SET ANSI_WARNINGS OFF 
+GO
+ALTER DATABASE [Na_WebApplication] SET ARITHABORT OFF 
+GO
+ALTER DATABASE [Na_WebApplication] SET AUTO_CLOSE ON 
+GO
+ALTER DATABASE [Na_WebApplication] SET AUTO_SHRINK OFF 
+GO
+ALTER DATABASE [Na_WebApplication] SET AUTO_UPDATE_STATISTICS ON 
+GO
+ALTER DATABASE [Na_WebApplication] SET CURSOR_CLOSE_ON_COMMIT OFF 
+GO
+ALTER DATABASE [Na_WebApplication] SET CURSOR_DEFAULT  GLOBAL 
+GO
+ALTER DATABASE [Na_WebApplication] SET CONCAT_NULL_YIELDS_NULL OFF 
+GO
+ALTER DATABASE [Na_WebApplication] SET NUMERIC_ROUNDABORT OFF 
+GO
+ALTER DATABASE [Na_WebApplication] SET QUOTED_IDENTIFIER OFF 
+GO
+ALTER DATABASE [Na_WebApplication] SET RECURSIVE_TRIGGERS OFF 
+GO
+ALTER DATABASE [Na_WebApplication] SET  ENABLE_BROKER 
+GO
+ALTER DATABASE [Na_WebApplication] SET AUTO_UPDATE_STATISTICS_ASYNC OFF 
+GO
+ALTER DATABASE [Na_WebApplication] SET DATE_CORRELATION_OPTIMIZATION OFF 
+GO
+ALTER DATABASE [Na_WebApplication] SET TRUSTWORTHY OFF 
+GO
+ALTER DATABASE [Na_WebApplication] SET ALLOW_SNAPSHOT_ISOLATION OFF 
+GO
+ALTER DATABASE [Na_WebApplication] SET PARAMETERIZATION SIMPLE 
+GO
+ALTER DATABASE [Na_WebApplication] SET READ_COMMITTED_SNAPSHOT OFF 
+GO
+ALTER DATABASE [Na_WebApplication] SET HONOR_BROKER_PRIORITY OFF 
+GO
+ALTER DATABASE [Na_WebApplication] SET RECOVERY SIMPLE 
+GO
+ALTER DATABASE [Na_WebApplication] SET  MULTI_USER 
+GO
+ALTER DATABASE [Na_WebApplication] SET PAGE_VERIFY CHECKSUM  
+GO
+ALTER DATABASE [Na_WebApplication] SET DB_CHAINING OFF 
+GO
+ALTER DATABASE [Na_WebApplication] SET FILESTREAM( NON_TRANSACTED_ACCESS = OFF ) 
+GO
+ALTER DATABASE [Na_WebApplication] SET TARGET_RECOVERY_TIME = 60 SECONDS 
+GO
+ALTER DATABASE [Na_WebApplication] SET DELAYED_DURABILITY = DISABLED 
+GO
+ALTER DATABASE [Na_WebApplication] SET ACCELERATED_DATABASE_RECOVERY = OFF  
+GO
+ALTER DATABASE [Na_WebApplication] SET QUERY_STORE = OFF
+GO
+USE [Na_WebApplication]
+GO
+/****** Object:  Table [dbo].[__EFMigrationsHistory]    Script Date: 3/7/2023 12:13:02 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[__EFMigrationsHistory](
+	[MigrationId] [nvarchar](150) NOT NULL,
+	[ProductVersion] [nvarchar](32) NOT NULL,
+ CONSTRAINT [PK___EFMigrationsHistory] PRIMARY KEY CLUSTERED 
+(
+	[MigrationId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Emp]    Script Date: 3/7/2023 12:13:02 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Emp](
+	[Id] [int] NOT NULL,
+	[Name] [varchar](50) NULL,
+	[Email] [varchar](50) NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[EmpAddress]    Script Date: 3/7/2023 12:13:02 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[EmpAddress](
+	[AddId] [int] IDENTITY(201,1) NOT NULL,
+	[Dist] [varchar](25) NULL,
+	[Village] [varchar](25) NULL,
+	[ZipCode] [varchar](25) NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[AddId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[EmpLogin]    Script Date: 3/7/2023 12:13:02 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[EmpLogin](
+	[Id] [int] NOT NULL,
+	[Name] [varchar](50) NULL,
+	[Email] [varchar](50) NULL,
+	[Password] [varchar](55) NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Employee]    Script Date: 3/7/2023 12:13:02 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Employee](
+	[Id] [int] IDENTITY(100,1) NOT NULL,
+	[Name] [varchar](55) NULL,
+	[Department] [varchar](55) NULL,
+	[DOB] [varchar](15) NULL,
+	[Address] [varchar](55) NULL,
+	[ZipCode] [varchar](55) NULL,
+	[Salary] [int] NULL,
+	[PhoneNo] [varchar](55) NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Empp]    Script Date: 3/7/2023 12:13:02 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Empp](
+	[Id] [int] IDENTITY(101,2) NOT NULL,
+	[Name] [varchar](50) NULL,
+	[Email] [varchar](50) NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[MaDepartment]    Script Date: 3/7/2023 12:13:02 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[MaDepartment](
+	[DeptId] [int] NOT NULL,
+	[DeptName] [varchar](25) NULL,
+	[DeptCode] [varchar](25) NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[DeptId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[NewEmp]    Script Date: 3/7/2023 12:13:02 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[NewEmp](
+	[EmpId] [int] IDENTITY(101,1) NOT NULL,
+	[EmpName] [varchar](25) NULL,
+	[Email] [varchar](25) NULL,
+	[Password] [varchar](25) NULL,
+	[AddId] [int] NULL,
+	[MobileNo] [varchar](25) NULL,
+	[DeptId] [int] NULL,
+	[Gender] [varchar](15) NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[EmpId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[User_Info]    Script Date: 3/7/2023 12:13:02 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[User_Info](
+	[Id] [int] IDENTITY(101,1) NOT NULL,
+	[Email] [varchar](55) NULL,
+	[Password] [varchar](55) NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+SET IDENTITY_INSERT [dbo].[EmpAddress] ON 
+
+INSERT [dbo].[EmpAddress] ([AddId], [Dist], [Village], [ZipCode]) VALUES (201, N'asdfrewri', N'jogiyreg', N'h35443')
+INSERT [dbo].[EmpAddress] ([AddId], [Dist], [Village], [ZipCode]) VALUES (203, N'Bhadohi', N'mardanpur', N'275201')
+INSERT [dbo].[EmpAddress] ([AddId], [Dist], [Village], [ZipCode]) VALUES (204, N'agara', N'bhatinda', N'h35443')
+SET IDENTITY_INSERT [dbo].[EmpAddress] OFF
+GO
+INSERT [dbo].[EmpLogin] ([Id], [Name], [Email], [Password]) VALUES (54, N'narendra', N'narendra@gmail.com', N'na1234556')
+GO
+SET IDENTITY_INSERT [dbo].[Employee] ON 
+
+INSERT [dbo].[Employee] ([Id], [Name], [Department], [DOB], [Address], [ZipCode], [Salary], [PhoneNo]) VALUES (101, N'Raj', N'mca', N'2/3/2000', N'bhadohi', N'275201', 24515, N'73939546')
+INSERT [dbo].[Employee] ([Id], [Name], [Department], [DOB], [Address], [ZipCode], [Salary], [PhoneNo]) VALUES (102, N'Narendra', N'MCA', N'2/3/2000', N'Ghazipur', N'275201', 246515, N'545525586')
+INSERT [dbo].[Employee] ([Id], [Name], [Department], [DOB], [Address], [ZipCode], [Salary], [PhoneNo]) VALUES (116, N'narendra', N'mca', N'12/1/2001', N'ghazipur', N'124021001', 2255, N'4252425')
+INSERT [dbo].[Employee] ([Id], [Name], [Department], [DOB], [Address], [ZipCode], [Salary], [PhoneNo]) VALUES (128, N'rohan chauhan', N'B.tech', N'9/5/2001', N'noida utter pradesh ', N'142565425', 2425, N'51442433252')
+INSERT [dbo].[Employee] ([Id], [Name], [Department], [DOB], [Address], [ZipCode], [Salary], [PhoneNo]) VALUES (130, N'mahesh nhjl', N'Viv', N'12/1/2001', N'delhi dfgewt', N'221454', 254, N'7393998687')
+INSERT [dbo].[Employee] ([Id], [Name], [Department], [DOB], [Address], [ZipCode], [Salary], [PhoneNo]) VALUES (141, N'raj kumar', N'mca', N'4/51020', N'jguyjh', N'jgyu8', 120, N'656558')
+INSERT [dbo].[Employee] ([Id], [Name], [Department], [DOB], [Address], [ZipCode], [Salary], [PhoneNo]) VALUES (142, N'sohan', N'dotnet', N'12/1/1099', N'noida', N'123', 32254, N'7859853236')
+INSERT [dbo].[Employee] ([Id], [Name], [Department], [DOB], [Address], [ZipCode], [Salary], [PhoneNo]) VALUES (145, N'ram ram', N'java', N'2023-02-06', N'noida', N'fdt565', 215124, N'22587755 ')
+SET IDENTITY_INSERT [dbo].[Employee] OFF
+GO
+SET IDENTITY_INSERT [dbo].[Empp] ON 
+
+INSERT [dbo].[Empp] ([Id], [Name], [Email]) VALUES (101, N'narendra', N'narendra@gmail.com')
+INSERT [dbo].[Empp] ([Id], [Name], [Email]) VALUES (105, N'endra', N'endra@gmail.com')
+INSERT [dbo].[Empp] ([Id], [Name], [Email]) VALUES (107, N'narendra', N'hjtgyvv 123@gmail.com')
+INSERT [dbo].[Empp] ([Id], [Name], [Email]) VALUES (109, N'ranarayan ', N'nara@123@gmail.com')
+INSERT [dbo].[Empp] ([Id], [Name], [Email]) VALUES (117, N'endra', N'endra@gmail.com')
+INSERT [dbo].[Empp] ([Id], [Name], [Email]) VALUES (118, N'endra', N'endra@gmail.com')
+INSERT [dbo].[Empp] ([Id], [Name], [Email]) VALUES (2117, N'endra', N'endra@gmail.com')
+INSERT [dbo].[Empp] ([Id], [Name], [Email]) VALUES (2119, N'dtfyrtu', N'cgfjrdujr@gmail.com')
+SET IDENTITY_INSERT [dbo].[Empp] OFF
+GO
+INSERT [dbo].[MaDepartment] ([DeptId], [DeptName], [DeptCode]) VALUES (111, N'JavaScript', N'Ja11')
+INSERT [dbo].[MaDepartment] ([DeptId], [DeptName], [DeptCode]) VALUES (222, N'.Net', N'net23')
+INSERT [dbo].[MaDepartment] ([DeptId], [DeptName], [DeptCode]) VALUES (333, N'Java', N'Ja23')
+INSERT [dbo].[MaDepartment] ([DeptId], [DeptName], [DeptCode]) VALUES (444, N'Php', N'Ph554')
+GO
+SET IDENTITY_INSERT [dbo].[NewEmp] ON 
+
+INSERT [dbo].[NewEmp] ([EmpId], [EmpName], [Email], [Password], [AddId], [MobileNo], [DeptId], [Gender]) VALUES (101, N'Narendra', N'nare@gmail.com', N'r@123', 201, N'7859853236', 222, N'Male')
+INSERT [dbo].[NewEmp] ([EmpId], [EmpName], [Email], [Password], [AddId], [MobileNo], [DeptId], [Gender]) VALUES (103, N'raj', N'rr@gmail.com', N'raj@123', 203, N'7878748', 333, N'Male')
+INSERT [dbo].[NewEmp] ([EmpId], [EmpName], [Email], [Password], [AddId], [MobileNo], [DeptId], [Gender]) VALUES (104, N'Mohan', N'mohan@gmail.com', N'mm@123', 204, N'558755545', 444, N'Male')
+SET IDENTITY_INSERT [dbo].[NewEmp] OFF
+GO
+SET IDENTITY_INSERT [dbo].[User_Info] ON 
+
+INSERT [dbo].[User_Info] ([Id], [Email], [Password]) VALUES (101, N'narendra@gmail.com', N'nare@123')
+INSERT [dbo].[User_Info] ([Id], [Email], [Password]) VALUES (102, N'mahendra@gmail.com', N'mahe@12')
+INSERT [dbo].[User_Info] ([Id], [Email], [Password]) VALUES (103, N'jitendra@gmail.com', N'jit@123')
+INSERT [dbo].[User_Info] ([Id], [Email], [Password]) VALUES (104, N'Raj@gmail.com', N'raj@123')
+SET IDENTITY_INSERT [dbo].[User_Info] OFF
+GO
+ALTER TABLE [dbo].[NewEmp]  WITH CHECK ADD FOREIGN KEY([AddId])
+REFERENCES [dbo].[EmpAddress] ([AddId])
+GO
+ALTER TABLE [dbo].[NewEmp]  WITH CHECK ADD FOREIGN KEY([DeptId])
+REFERENCES [dbo].[MaDepartment] ([DeptId])
+GO
+/****** Object:  StoredProcedure [dbo].[DeleteData]    Script Date: 3/7/2023 12:13:03 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE proc [dbo].[DeleteData](@Id int)
+As
+Begin 
+declare @AddId int
+select @AddId=AddId from NewEmp where EmpId=@Id
+delete from NewEmp where EmpId=@Id
+delete from EmpAddress where AddId=@AddId
+ 
+End;
+GO
+/****** Object:  StoredProcedure [dbo].[GetAllData]    Script Date: 3/7/2023 12:13:03 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE proc [dbo].[GetAllData]
+As 
+begin
+select E.EmpId,E.EmpName,E.Email,E.Password,E.MobileNo,E.Gender,A.Dist,A.Village,
+A.ZipCode,D.DeptName,D.DeptCode
+from NewEmp as E inner join EmpAddress as A on  A.AddId=E.AddId
+inner join MaDepartment as D on  D.DeptId=E.DeptId
+end;
+GO
+/****** Object:  StoredProcedure [dbo].[GetAllDataWithId]    Script Date: 3/7/2023 12:13:03 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE proc [dbo].[GetAllDataWithId] (@Id int)
+As 
+begin
+select E.EmpId,E.EmpName,E.Email,E.Password,E.MobileNo,E.Gender,A.Dist,
+A.Village,A.ZipCode,D.DeptName,D.DeptCode
+from NewEmp as E inner join EmpAddress as A on  A.AddId=E.AddId
+inner join MaDepartment as D on  D.DeptId=E.DeptId
+where EmpId=@Id
+end;
+GO
+/****** Object:  StoredProcedure [dbo].[GetDwLogin]    Script Date: 3/7/2023 12:13:03 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+create proc [dbo].[GetDwLogin](@Email varchar(25),@pass varchar(25))
+As 
+begin
+select E.EmpId,E.EmpName,E.Email,E.Password,E.MobileNo,E.Gender,A.Dist,
+A.Village,A.ZipCode,D.DeptName,D.DeptCode
+from NewEmp as E inner join EmpAddress as A on  A.AddId=E.AddId
+inner join MaDepartment as D on  D.DeptId=E.DeptId
+where Email=@Email and Password=@pass
+end;
+GO
+/****** Object:  StoredProcedure [dbo].[SaveData]    Script Date: 3/7/2023 12:13:03 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE proc [dbo].[SaveData](@Name varchar(50),@Email varchar(25),@Password varchar(15),
+@MobileNo varchar(20),@Gender varchar(20),@Dist Varchar(25),@Village varchar(25),@ZipCode varchar(15),
+@DeptName varchar(25))
+As
+Begin 
+declare @AddId int
+declare @DeptId int
+insert into EmpAddress(Dist,Village,ZipCode)
+values(@Dist,@Village,@ZipCode)
+--//for find addid ue use
+select top(1) @AddId = AddId from EmpAddress order by AddId desc
+----//for find deptId
+select @DeptId= DeptId from MaDepartment where DeptName=@DeptName
+insert into NewEmp(EmpName,Email,Password,AddId,MobileNo,Gender, DeptId) 
+values(@Name,@Email,@Password,@AddId,@MobileNo,@Gender,@DeptId)
+End;
+GO
+/****** Object:  StoredProcedure [dbo].[UpdateData]    Script Date: 3/7/2023 12:13:03 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+---------------------------------------
+CREATE proc [dbo].[UpdateData] (@Id int,@Name varchar(50),@Email varchar(25),@Password varchar(15),
+@MobileNo varchar(20),@Gender varchar(25),@Dist Varchar(25),@Village varchar(25),@ZipCode varchar(15),
+@DeptName varchar(25))
+As
+Begin 
+declare @AddId int
+declare @DeptId int
+select @AddId= AddId from NewEmp where EmpId=@Id
+select @DeptId= DeptId from MaDepartment where DeptName=@DeptName
+update EmpAddress set Dist=@Dist,Village=@Village,ZipCode=@ZipCode where AddId=@AddId
+update NewEmp set EmpName=@Name,Email=@Email,Password=@Password,AddId=@AddId,MobileNo=@MobileNo,DeptId=@DeptId,Gender=@Gender
+where EmpId=@Id
+End;
+GO
+USE [master]
+GO
+ALTER DATABASE [Na_WebApplication] SET  READ_WRITE 
+GO
+
+
+////////////////////////////////  
+
+ 
+ 
+
+
+
+
+
+
+
